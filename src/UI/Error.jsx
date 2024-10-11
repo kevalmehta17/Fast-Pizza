@@ -3,7 +3,7 @@ import { useNavigate, useRouteError } from "react-router-dom";
 function NotFound() {
   const navigate = useNavigate();
   const error = useRouteError();
-  console.log(error.data);
+
   return (
     <div>
       <h1>Something went wrong 😢</h1>
