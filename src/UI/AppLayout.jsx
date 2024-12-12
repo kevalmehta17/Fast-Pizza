@@ -16,6 +16,7 @@ function AppLayout() {
       <div className="overflow-scroll">
         <main className="mx-auto max-w-3xl">
           <Outlet />
+          {/* Outlet means that this is the main content of the app and children of App is render */}
         </main>
       </div>
 
