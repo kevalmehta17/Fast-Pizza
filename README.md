@@ -31,5 +31,4 @@ You can check out the live demo of the project here: [Fast Pizza Co - Live Demo]
 
 1. Clone this repository:
    ```bash
-   git clone https://github.com/your-username/fast-react-pizza-co.git
-   ```
+   git clone https://github.com/your-username/Fast-Pizza.git
