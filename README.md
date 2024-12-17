@@ -4,6 +4,9 @@
 
 Fast Pizza Co is an online pizza ordering website built with React. Users can customize their pizza and place an order. The website integrates with APIs to handle pizza ordering and offers a smooth user experience with responsive design and real-time updates.
 
+## Live Demo 🌐
+You can check out the live demo of the project here: [Fast React Pizza Co - Live Demo](https://fast-pizza-pearl-rho.vercel.app/)
+
 ## Technologies Used 🛠️
 
 - **React**: For building the user interface.
