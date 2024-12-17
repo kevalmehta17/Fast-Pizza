@@ -1,8 +1,17 @@
 import { useState } from "react";
-import { Form, redirect, useActionData, useNavigation } from "react-router-dom";
+import {
+  Form,
+  Link,
+  redirect,
+  useActionData,
+  useNavigation,
+} from "react-router-dom";
 import { createOrder } from "../../services/apiRestaurant";
 import Button from "../../UI/Button";
 import { useSelector } from "react-redux";
+import { clearCart, getCart, getTotalCartPrice } from "../cart/cartSlice";
+import store from "../../utils/store";
+import { formatCurrency } from "../../utils/helpers";
 
 // https://uibakery.io/regex-library/phone-number
 const isValidPhone = (str) =>
@@ -10,39 +19,36 @@ const isValidPhone = (str) =>
     str
   );
 
-const fakeCart = [
-  {
-    pizzaId: 12,
-    name: "Mediterranean",
-    quantity: 2,
-    unitPrice: 16,
-    totalPrice: 32,
-  },
-  {
-    pizzaId: 6,
-    name: "Vegetale",
-    quantity: 1,
-    unitPrice: 13,
-    totalPrice: 13,
-  },
-  {
-    pizzaId: 11,
-    name: "Spinach and Mushroom",
-    quantity: 1,
-    unitPrice: 15,
-    totalPrice: 15,
-  },
-];
-
 function CreateOrder() {
-  // const [withPriority, setWithPriority] = useState(false);
+  const [withPriority, setWithPriority] = useState(false);
   const username = useSelector((state) => state.user.username);
   const navigation = useNavigation();
   const isSubmitting = navigation.state === "submitting";
   const formErrors = useActionData(); //error handling
 
-  const cart = fakeCart;
+  const cart = useSelector(getCart);
+  const totalCartPrice = useSelector(getTotalCartPrice);
+  const priorityPrice = withPriority ? totalCartPrice * 0.2 : 0;
+  const totalPrice = totalCartPrice + priorityPrice;
 
+  if (!cart.length) {
+    return (
+      <>
+        <Link
+          to="/menu"
+          className="text-blue-600 underline hover:text-blue-800"
+        >
+          &larr; Back to menu
+        </Link>
+        <div className="px-4 py-6">
+          <h2 className="text-xl mb-8 font-semibold text-red-600 shadow-xl">
+            Your cart is empty! Please add some pizzas to your cart before
+            placing an order.
+          </h2>
+        </div>
+      </>
+    );
+  }
   return (
     <div className="px-4 py-6">
       <h2 className="text-xl mb-8 font-semibold">
@@ -91,8 +97,8 @@ function CreateOrder() {
             type="checkbox"
             name="priority"
             id="priority"
-            // value={withPriority}
-            // onChange={(e) => setWithPriority(e.target.checked)}
+            value={withPriority}
+            onChange={(e) => setWithPriority(e.target.checked)}
           />
           <label htmlFor="priority" className="font-medium ">
             Want to yo give your order priority?
@@ -103,7 +109,9 @@ function CreateOrder() {
           {/* here we added the fakecart data in the form data for current usage */}
           <input type="hidden" name="cart" value={JSON.stringify(cart)} />
           <Button disabled={isSubmitting} type="primary">
-            {isSubmitting ? "Placing Order..." : "Order now"}
+            {isSubmitting
+              ? "Placing Order..."
+              : `Order now from   ${formatCurrency(totalPrice)}`}
           </Button>
         </div>
       </Form>
@@ -119,7 +127,7 @@ export async function action({ request }) {
   const order = {
     ...data,
     cart: JSON.parse(data.cart),
-    priority: data.priority === "on",
+    priority: data.priority === "true",
   };
 
   console.log("Order to be created:", order); // Check the order structure
@@ -131,10 +139,12 @@ export async function action({ request }) {
 
   if (Object.keys(error).length > 0) return error;
 
-  //if everything is okay then create a new order
-  // const newOrder = await createOrder(order);
+  // if everything is okay then create a new order
+  const newOrder = await createOrder(order);
 
-  // return redirect(`/order/${newOrder.id}`);
+  store.dispatch(clearCart());
+
+  return redirect(`/order/${newOrder.id}`);
   return null;
 }
 
